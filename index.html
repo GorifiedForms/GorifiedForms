@@ -1,119 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>World-Class Website</title>
-
-    <!-- SEO -->
-    <meta name="description" content="A world-class modern website built for elegance, clarity, and performance." />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: "Inter", sans-serif;
-            background: #f7f7f9;
-            color: #222;
-            line-height: 1.6;
-        }
-        header {
-            padding: 40px;
-            text-align: center;
-            background: white;
-            border-bottom: 1px solid #ddd;
-        }
-        header h1 {
-            font-size: 3rem;
-            font-weight: 800;
-        }
-        header p {
-            font-size: 1.2rem;
-            margin-top: 10px;
-            color: #555;
-        }
-        .container {
-            max-width: 900px;
-            margin: 50px auto;
-            padding: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 14px;
-            padding: 30px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-            margin-bottom: 40px;
-        }
-        .card h2 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        .card p {
-            color: #444;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #0066ff;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .btn:hover {
-            background: #004bcc;
-        }
-        footer {
-            text-align: center;
-            padding: 25px;
-            margin-top: 60px;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Pastebin</title>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      background: #222;
+      color: #fff;
+      border: 1px solid #333;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 12px 18px;
+      background: #4caf50;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .link {
+      margin-top: 20px;
+      padding: 10px;
+      background: #222;
+      border: 1px solid #444;
+      word-break: break-all;
+    }
+  </style>
 </head>
-
 <body>
-    <header>
-        <h1>Welcome to Your World-Class Website</h1>
-        <p>Fast. Modern. Beautiful. Ready for GitHub Pages.</p>
-    </header>
 
-    <div class="container">
+<h1>Pastebin Clone</h1>
 
-        <div class="card">
-            <h2>High-End Design</h2>
-            <p>This site uses a premium layout, smooth spacing, modern typography, and clean UI patterns used by top Silicon Valley companies.</p>
-            <a class="btn" href="#">Learn More</a>
-        </div>
+<textarea id="pasteText" placeholder="Paste your text here..."></textarea>
+<br>
+<button onclick="savePaste()">Save Paste</button>
 
-        <div class="card">
-            <h2>Lightning Performance</h2>
-            <p>Zero frameworks. Zero bloat. Built for speed, clarity, and SEO dominance on search engines.</p>
-            <a class="btn" href="#">Performance Details</a>
-        </div>
+<div id="result" class="link" style="display:none;"></div>
 
-        <div class="card">
-            <h2>Perfect for GitHub Pages</h2>
-            <p>Drop this file into your repository’s root and deploy instantly using your workflow.</p>
-            <a class="btn" href="#">Deploy Guide</a>
-        </div>
+<script>
+  function savePaste() {
+    const text = document.getElementById("pasteText").value;
+    const id = Date.now().toString(36);
 
-    </div>
+    // Save to localStorage
+    localStorage.setItem("paste_" + id, text);
 
-    <footer>
-        © 2025 Your Name — Crafted with Excellence
-    </footer>
+    const url = window.location.origin + window.location.pathname + "?id=" + id;
+
+    document.getElementById("result").style.display = "block";
+    document.getElementById("result").innerHTML = "Your paste URL:<br>" + url;
+  }
+
+  // Load paste
+  const query = new URLSearchParams(window.location.search);
+  const pasteId = query.get("id");
+
+  if (pasteId) {
+    const content = localStorage.getItem("paste_" + pasteId);
+    if (content) {
+      document.getElementById("pasteText").value = content;
+    }
+  }
+</script>
+
 </body>
 </html>
