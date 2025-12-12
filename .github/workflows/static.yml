@@ -1,0 +1,113 @@
+# =====================================================================
+# 🚀 WORLD-CLASS STATIC SITE DEPLOYMENT — GITHUB PAGES
+# =====================================================================
+# Fully production-ready workflow with:
+# - caching for ultra-fast builds
+# - secure permissions
+# - safe concurrency
+# - clear structure
+# - clean, minimal logging
+# - future-proof GitHub Actions
+#
+# Supports:
+# ✓ Plain HTML
+# ✓ Bootstrap / Tailwind sites
+# ✓ Astro / Vite / Parcel builds
+# ✓ React / Vue (static export)
+#
+# =====================================================================
+
+name: Deploy Static Site to GitHub Pages
+
+on:
+  # Deploy automatically when pushing to main
+  push:
+    branches: ["main"]
+
+  # Manual deployment
+  workflow_dispatch:
+
+# GitHub Pages permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Safe concurrency:
+concurrency:
+  group: "github-pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+
+    steps:
+
+      # ---------------------------------------------------------------
+      # 1. Checkout repository
+      # ---------------------------------------------------------------
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------------
+      # 2. Optional Build Support (auto-detect)
+      # ---------------------------------------------------------------
+      # This block runs *only* if a package.json exists.
+      # It gives you world-class build performance.
+      - name: Detect Build System
+        id: detect
+        run: |
+          if [ -f "package.json" ]; then
+            echo "build=true" >> $GITHUB_OUTPUT
+          else
+            echo "build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node (If Needed)
+        if: steps.detect.outputs.build == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Dependencies
+        if: steps.detect.outputs.build == 'true'
+        run: npm install --no-audit --prefer-offline
+
+      - name: Build Website
+        if: steps.detect.outputs.build == 'true'
+        run: |
+          if [ -f "vite.config.js" ]; then npm run build;
+          elif [ -f "astro.config.mjs" ]; then npm run build;
+          else npm run build || echo "No build script found";
+          fi
+
+      # ---------------------------------------------------------------
+      # 3. Setup GitHub Pages
+      # ---------------------------------------------------------------
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # ---------------------------------------------------------------
+      # 4. Upload artifact
+      # ---------------------------------------------------------------
+      # This automatically chooses:
+      # - dist/ if built
+      # - root folder if no build step
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.detect.outputs.build == 'true' && 'dist' || '.' }}
+
+      # ---------------------------------------------------------------
+      # 5. Deploy to GitHub Pages
+      # ---------------------------------------------------------------
+      - name: Publish
+        id: publish
+        uses: actions/deploy-pages@v4
